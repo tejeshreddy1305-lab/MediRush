@@ -1,245 +1,73 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from "react"
 
-const SEVERITY_CONFIG = {
-  CRITICAL: {
-    bg:         '#B71C1C',
-    bgGradient: 'linear-gradient(160deg, #7f0000 0%, #B71C1C 100%)',
-    color:      '#FF5252',
-    label:      'CRITICAL',
-    pulse:      true,
-  },
-  MODERATE: {
-    bg:         '#E65100',
-    bgGradient: 'linear-gradient(160deg, #bf360c 0%, #E65100 100%)',
-    color:      '#FFD740',
-    label:      'MODERATE',
-    pulse:      false,
-  },
-  NORMAL: {
-    bg:         '#1B5E20',
-    bgGradient: 'linear-gradient(160deg, #004d40 0%, #1B5E20 100%)',
-    color:      '#69F0AE',
-    label:      'NORMAL',
-    pulse:      false,
-  },
-}
+const BG = { CRITICAL: "#B71C1C", MODERATE: "#E65100", NORMAL: "#1B5E20" }
+const LABEL_COLOR = { CRITICAL: "#FF5252", MODERATE: "#FFAB40", NORMAL: "#69F0AE" }
 
-// ── Circular arc gauge ───────────────────────────────────────────
-function PriorityGauge({ score, severity }) {
-  const cfg    = SEVERITY_CONFIG[severity] || SEVERITY_CONFIG.MODERATE
-  const [displayed, setDisplayed] = useState(0)
-  const animRef = useRef(null)
+export default function TriageResultScreen({ go, triageData, setHospitals }) {
+  const [animated, setAnimated] = useState(false)
+  const d = triageData || { severity: "CRITICAL", score: 9.2, confidence: 91, condition: "Acute Coronary Syndrome", action: "Seek emergency care immediately." }
+
+  const R = 54, C = 2 * Math.PI * R
+  const offset = C - (d.score / 10) * C
 
   useEffect(() => {
-    const target   = score || 0
-    const duration = 800
-    const start    = performance.now()
-
-    const animate = (now) => {
-      const elapsed  = now - start
-      const progress = Math.min(elapsed / duration, 1)
-      const ease     = 1 - Math.pow(1 - progress, 3)
-      setDisplayed(parseFloat((target * ease).toFixed(1)))
-      if (progress < 1) animRef.current = requestAnimationFrame(animate)
-    }
-    animRef.current = requestAnimationFrame(animate)
-    return () => cancelAnimationFrame(animRef.current)
-  }, [score])
-
-  // SVG arc math
-  const size   = 180
-  const cx     = size / 2
-  const cy     = size / 2
-  const r      = 72
-  const stroke = 10
-  const startA = -220    // degrees
-  const totalA = 260     // degrees sweep
-  const pct    = displayed / 10
-
-  const toRad = (deg) => (deg * Math.PI) / 180
-  const arcX  = (ang) => cx + r * Math.cos(toRad(ang))
-  const arcY  = (ang) => cy + r * Math.sin(toRad(ang))
-
-  const endDeg   = startA + totalA * pct
-  const largeArc = totalA * pct > 180 ? 1 : 0
-
-  const describeArc = (start, end) => {
-    const s = { x: arcX(start), y: arcY(start) }
-    const e = { x: arcX(end),   y: arcY(end) }
-    return `M ${s.x} ${s.y} A ${r} ${r} 0 ${end - start > 180 ? 1 : 0} 1 ${e.x} ${e.y}`
-  }
-
-  return (
-    <div className="flex items-center justify-center" style={{ position: 'relative' }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        {/* Track */}
-        <path
-          d={describeArc(startA, startA + totalA)}
-          fill="none"
-          stroke="rgba(255,255,255,0.1)"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-        />
-        {/* Progress arc */}
-        {displayed > 0 && (
-          <path
-            d={describeArc(startA, endDeg)}
-            fill="none"
-            stroke={cfg.color}
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 8px ${cfg.color})` }}
-          />
-        )}
-        {/* Score text */}
-        <text
-          x={cx} y={cy - 6}
-          textAnchor="middle"
-          fontFamily="JetBrains Mono, monospace"
-          fontWeight="700"
-          fontSize="32"
-          fill="#fff"
-        >
-          {displayed.toFixed(1)}
-        </text>
-        <text
-          x={cx} y={cy + 18}
-          textAnchor="middle"
-          fontFamily="DM Sans, sans-serif"
-          fontSize="11"
-          fill="rgba(255,255,255,0.5)"
-        >
-          / 10
-        </text>
-      </svg>
-    </div>
-  )
-}
-
-// ────────────────────────────────────────────────────────────────
-export default function TriageResult({ navigate, state }) {
-  const result   = state.triageResult
-  const severity = result?.severity || 'MODERATE'
-  const cfg      = SEVERITY_CONFIG[severity]
-
-  useEffect(() => {
-    const timer = setTimeout(() => navigate('hospital'), 4000)
-    return () => clearTimeout(timer)
+    setTimeout(() => setAnimated(true), 100)
+    const t = setTimeout(() => go("hospitals"), 4500)
+    return () => clearTimeout(t)
   }, [])
 
-  if (!result) {
-    return (
-      <div className="screen items-center justify-center">
-        <p className="font-dm text-white">No triage result found.</p>
-        <button className="btn-primary mt-4" onClick={() => navigate('home')}>Go Back</button>
-      </div>
-    )
-  }
-
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{
-        background: cfg.bgGradient,
-        animation: cfg.pulse ? 'borderPulse 1.5s ease-in-out infinite' : 'none',
-        boxShadow: cfg.pulse ? '0 0 0 4px rgba(229,57,53,0.5) inset' : 'none',
-      }}
-    >
-      {/* ── Header ─────────────────────── */}
-      <div className="flex items-center justify-between px-5 pt-6 pb-3">
-        <span className="font-syne font-bold text-white text-base">MediRush</span>
-        <span
-          className="text-xs font-dm px-3 py-1 rounded-full font-semibold"
-          style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}
-        >
-          Step 2 of 3
-        </span>
-      </div>
+    <div className="screen" style={{ background: BG[d.severity], paddingTop: 52, alignItems: "center", justifyContent: "center", gap: 20 }}>
+      {d.severity === "CRITICAL" && (
+        <div className="critical-pulse" style={{ position: "absolute", inset: 0, borderRadius: 0, pointerEvents: "none", border: `3px solid #E53935` }} />
+      )}
 
-      {/* ── White Card ─────────────────── */}
-      <div className="flex-1 flex flex-col px-5 pb-8">
-        <div
-          className="flex-1 rounded-3xl p-6 flex flex-col items-center gap-5"
-          style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)' }}
-        >
-          {/* Severity label */}
-          <div className="text-center mt-2">
-            <p className="font-dm text-xs tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              EMERGENCY LEVEL
-            </p>
-            <h1
-              className="font-syne font-bold tracking-tight"
-              style={{ fontSize: 42, color: cfg.color, lineHeight: 1.1 }}
-            >
-              {cfg.label}
-            </h1>
-          </div>
+      {/* Result Card */}
+      <div style={{ background: "rgba(255,255,255,0.95)", borderRadius: 24, padding: 28, width: "100%", maxWidth: 360 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", color: "#9E9E9E", textAlign: "center", marginBottom: 8 }}>EMERGENCY LEVEL</p>
 
-          {/* Gauge */}
-          <PriorityGauge score={result.priority_score} severity={severity} />
+        <p className="font-syne" style={{ fontSize: 40, fontWeight: 800, textAlign: "center", color: BG[d.severity], lineHeight: 1 }}>
+          {d.severity}
+        </p>
 
-          {/* Confidence badge */}
-          <div
-            className="px-3 py-1.5 rounded-full text-xs font-dm font-semibold"
-            style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)' }}
-          >
-            AI Confidence: {result.confidence}%
-          </div>
-
-          {/* Condition */}
-          <div className="w-full rounded-2xl p-4" style={{ background: 'rgba(0,0,0,0.2)' }}>
-            <p className="font-dm text-xs mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Suspected Condition</p>
-            <p className="font-syne font-bold text-white text-lg">{result.condition}</p>
-          </div>
-
-          {/* Detected symptoms */}
-          {result.symptoms_detected?.length > 0 && (
-            <div className="w-full">
-              <p className="font-dm text-xs mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>Detected Symptoms</p>
-              <div className="flex flex-wrap gap-2">
-                {result.symptoms_detected.map((s, i) => (
-                  <span
-                    key={i}
-                    className="text-xs font-dm px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)' }}
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Recommended action */}
-          <div
-            className="w-full rounded-2xl p-4"
-            style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)' }}
-          >
-            <p className="font-dm text-xs mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Recommended Action</p>
-            <p className="font-dm text-sm text-white leading-relaxed">{result.action}</p>
-          </div>
+        {/* Gauge */}
+        <div style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}>
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r={R} fill="none" stroke="#F5F5F5" strokeWidth="10"/>
+            <circle cx="70" cy="70" r={R} fill="none"
+              stroke={BG[d.severity]} strokeWidth="10"
+              strokeLinecap="round"
+              strokeDasharray={C}
+              strokeDashoffset={animated ? offset : C}
+              style={{ transformOrigin:"center", transform:"rotate(-90deg)", transition:"stroke-dashoffset 0.8s ease-out" }}
+            />
+            <text x="70" y="64" textAnchor="middle" fontSize="28" fontWeight="700" fill={BG[d.severity]} fontFamily="JetBrains Mono">{d.score}</text>
+            <text x="70" y="82" textAnchor="middle" fontSize="11" fill="#9E9E9E" fontFamily="DM Sans">/ 10</text>
+          </svg>
         </div>
 
-        {/* Footer */}
-        <div className="mt-5">
-          <button
-            id="find-hospital-cta-btn"
-            className="w-full tap-target rounded-xl font-syne font-bold text-base"
-            style={{
-              background: '#fff',
-              color: cfg.bg,
-              border: 'none',
-              minHeight: 56,
-            }}
-            onClick={() => navigate('hospital')}
-          >
-            Find Best Hospital →
-          </button>
-          <p className="text-center font-dm text-xs mt-3" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Auto-advancing in 4 seconds...
-          </p>
+        {/* Confidence */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+          <span className="badge badge-red">AI Confidence: {d.confidence}%</span>
+        </div>
+
+        <div style={{ borderTop: "1px solid #F0F0F0", paddingTop: 14 }}>
+          <div style={{ marginBottom: 10 }}>
+            <p style={{ fontSize: 11, color: "#9E9E9E", marginBottom: 3 }}>SUSPECTED CONDITION</p>
+            <p style={{ fontSize: 15, fontWeight: 600, color: "#1A1A1A", fontFamily: "Syne" }}>{d.condition}</p>
+          </div>
+          <div>
+            <p style={{ fontSize: 11, color: "#9E9E9E", marginBottom: 3 }}>RECOMMENDED ACTION</p>
+            <p style={{ fontSize: 13, color: "#333", lineHeight: 1.5 }}>{d.action}</p>
+          </div>
         </div>
       </div>
+
+      <button className="btn-primary" style={{ maxWidth: 360 }} onClick={() => go("hospitals")}>
+        Find Best Hospital →
+      </button>
+
+      <p className="font-dm" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12 }}>Auto-advancing in 4 seconds...</p>
     </div>
   )
 }

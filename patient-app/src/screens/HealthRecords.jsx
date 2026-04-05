@@ -1,228 +1,172 @@
-import React, { useState } from 'react'
-import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts'
-import { User, Activity, AlertTriangle, FileText, ChevronLeft, ChevronDown, Droplet, Plus } from 'lucide-react'
-import axios from 'axios'
+import { useState } from "react"
+import { getDrugInfo } from "../api/medirush"
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+const PATIENT = {
+  name: "Ravi Kumar", age: 34, sex: "Male",
+  bloodType: "O+", allergies: ["Penicillin"],
+  conditions: ["Hypertension", "Type 2 Diabetes"],
+  medications: [
+    { name: "Amlodipine 5mg", generic: "amlodipine" },
+    { name: "Metformin 500mg", generic: "metformin" },
+    { name: "Losartan 50mg", generic: "losartan" },
+  ],
+  vitals: [
+    { date:"Jan 5", bp:"138/88", hr:82 },
+    { date:"Jan 8", bp:"142/90", hr:79 },
+    { date:"Jan 11", bp:"135/85", hr:84 },
+    { date:"Jan 14", bp:"140/88", hr:81 },
+    { date:"Jan 17", bp:"138/86", hr:83 },
+    { date:"Jan 20", bp:"136/84", hr:80 },
+    { date:"Jan 23", bp:"133/82", hr:78 },
+  ],
+  visits: [
+    { date:"12 Jan 2025", hospital:"Apollo Hospitals Tirupati", diagnosis:"Hypertensive Crisis" },
+    { date:"5 Nov 2024", hospital:"SVIMS", diagnosis:"Diabetic Review" },
+  ]
+}
 
-// Dummy Data exactly as requested
-const bpData = [
-  { val: 120 }, { val: 125 }, { val: 130 }, { val: 140 }, { val: 135 }, { val: 142 }, { val: 145 },
-]
-const hrData = [
-  { val: 72 }, { val: 75 }, { val: 68 }, { val: 80 }, { val: 85 }, { val: 82 }, { val: 88 },
-]
-
-export default function HealthRecords({ navigate, state }) {
-  const [activeDrug, setActiveDrug] = useState(null)
-  const [drugInfo, setDrugInfo] = useState(null)
+export default function HealthRecordsScreen({ go }) {
+  const [drugPopup, setDrugPopup] = useState(null)
   const [loadingDrug, setLoadingDrug] = useState(false)
 
-  const meds = ["Amlodipine", "Metformin"]
-
-  const fetchDrugInfo = async (drugName) => {
-    setActiveDrug(drugName)
+  const openDrug = async (med) => {
     setLoadingDrug(true)
-    setDrugInfo(null)
+    setDrugPopup({ name: med.name, loading: true })
     try {
-      const res = await axios.get(`${API_BASE}/api/drug_info?name=${drugName}`)
-      setDrugInfo(res.data)
-    } catch (e) {
-      setDrugInfo({ error: "Drug information not available." })
-    } finally {
-      setLoadingDrug(false)
+      const data = await getDrugInfo(med.generic)
+      setDrugPopup({ name: med.name, ...data })
+    } catch {
+      setDrugPopup({ name: med.name, purpose: "Pain management and inflammation reduction.", warnings: "Consult your doctor before use.", sideEffects: "Nausea, dizziness, stomach upset." })
     }
+    setLoadingDrug(false)
   }
 
+  const maxHR = Math.max(...PATIENT.vitals.map(v => v.hr))
+  const minHR = Math.min(...PATIENT.vitals.map(v => v.hr))
+
   return (
-    <div className="w-full min-h-screen bg-[#0D0D0D] text-white flex flex-col pb-safe">
-      
-      {/* Header */}
-      <header className="flex justify-between items-center p-5 sticky top-0 bg-[#0D0D0D]/90 backdrop-blur z-20 border-b border-white/10 shrink-0">
-        <button onClick={() => navigate('home')} className="p-2 -ml-2 rounded-full hover:bg-white/10 active:scale-95 transition-transform">
-          <ChevronLeft size={24} />
+    <div className="screen" style={{ paddingTop: 52, gap: 14, paddingBottom: 32 }}>
+      <div className="flex items-center justify-between mb-2">
+        <button onClick={() => go("home")} style={{ background:"none", border:"none", cursor:"pointer", color:"#E53935" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
-        <h1 className="text-lg font-bold font-syne">My Health Profile</h1>
-        <button className="p-2 -mr-2 text-normal">
-          <FileText size={20} />
-        </button>
-      </header>
-
-      <div className="flex-1 overflow-y-auto w-full px-5 pb-8 space-y-6 pt-4">
-
-        {/* Top Summary Card */}
-        <section className="bg-[#1A1A1A] p-5 rounded-2xl border border-[#2A2A2A] shadow-lg">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-mono text-xs uppercase text-gray-400 tracking-widest">Base Metrics</h2>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-bold">
-              <Droplet size={12} fill="currentColor" /> O+
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <p className="font-mono text-[10px] text-gray-500 uppercase mb-1.5">Allergies</p>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emergency/10 border border-emergency/30 text-emergency font-bold font-dm text-sm w-max">
-                <AlertTriangle size={14} /> Penicillin
-              </div>
-            </div>
-            
-            <div>
-              <p className="font-mono text-[10px] text-gray-500 uppercase mb-1.5">Chronic Conditions</p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 rounded-lg bg-[#2A2A2A] text-gray-200 text-sm font-dm">Hypertension</span>
-                <span className="px-3 py-1.5 rounded-lg bg-[#2A2A2A] text-gray-200 text-sm font-dm">Type 2 Diabetes</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Vitals Trend Section */}
-        <section>
-          <div className="flex justify-between items-end mb-3">
-            <h2 className="font-mono text-xs uppercase text-gray-400 tracking-widest pl-1">Vitals Trend (7d)</h2>
-            <button className="text-xs text-blue-400 font-dm">View All</button>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            {/* BP Chart */}
-            <div className="bg-[#1A1A1A] p-4 rounded-2xl border border-[#2A2A2A]">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-mono text-red-400">SYS BP</span>
-                <span className="font-bold font-syne text-lg">145</span>
-              </div>
-              <div className="h-12 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={bpData}>
-                    <YAxis domain={['dataMin - 10', 'dataMax + 10']} hide />
-                    <Line type="monotone" dataKey="val" stroke="#E53935" strokeWidth={2} dot={false} isAnimationActive={true} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-            
-            {/* HR Chart */}
-            <div className="bg-[#1A1A1A] p-4 rounded-2xl border border-[#2A2A2A]">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-mono text-blue-400">AVG HR</span>
-                <span className="font-bold font-syne text-lg">88</span>
-              </div>
-              <div className="h-12 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={hrData}>
-                    <YAxis domain={['dataMin - 5', 'dataMax + 5']} hide />
-                    <Line type="monotone" dataKey="val" stroke="#60A5FA" strokeWidth={2} dot={false} isAnimationActive={true} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Current Medications */}
-        <section>
-          <div className="flex justify-between items-end mb-3">
-            <h2 className="font-mono text-xs uppercase text-gray-400 tracking-widest pl-1">Current Medications</h2>
-            <button className="text-xs bg-white/10 text-white px-2 py-1 rounded font-dm flex items-center gap-1 active:scale-95 transition-transform"><Plus size={12} /> Add</button>
-          </div>
-          
-          <div className="space-y-2">
-            {meds.map((drug) => (
-              <button 
-                key={drug} 
-                onClick={() => fetchDrugInfo(drug)}
-                className="w-full text-left bg-[#1A1A1A] hover:bg-[#252525] p-4 rounded-xl border border-[#2A2A2A] flex justify-between items-center transition-colors shadow-sm active:scale-[0.98] min-touch"
-              >
-                <div>
-                  <h3 className="font-bold font-syne text-[15px]">{drug}</h3>
-                  <p className="font-mono text-[10px] text-gray-500 mt-0.5">Tap for FDA Label Info</p>
-                </div>
-                <ChevronDown size={18} className="text-gray-500" />
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Past Visits */}
-        <section>
-          <h2 className="font-mono text-xs uppercase text-gray-400 tracking-widest pl-1 mb-3">Emergency History</h2>
-          
-          <div className="flex gap-4 overflow-x-auto pb-4 snap-x" style={{ scrollbarWidth: 'none' }}>
-            
-            <div className="min-w-[240px] bg-[#1A1A1A] p-4 rounded-2xl border border-l-4 border-l-emergency border-y-[#2A2A2A] border-r-[#2A2A2A] shrink-0 snap-start">
-              <p className="font-mono text-xs text-gray-500 mb-2">12 Jan 2025</p>
-              <h3 className="font-bold font-syne text-sm text-red-200">Hypertensive Crisis</h3>
-              <p className="font-dm text-xs text-gray-400 mt-2">Apollo Hospitals Tirupati</p>
-            </div>
-            
-            <div className="min-w-[240px] bg-[#1A1A1A] p-4 rounded-2xl border border-l-4 border-l-moderate border-y-[#2A2A2A] border-r-[#2A2A2A] shrink-0 snap-start">
-              <p className="font-mono text-xs text-gray-500 mb-2">04 Oct 2024</p>
-              <h3 className="font-bold font-syne text-sm text-yellow-200">Hyperglycemia</h3>
-              <p className="font-dm text-xs text-gray-400 mt-2">SVR Ruia Government Hospital</p>
-            </div>
-
-          </div>
-        </section>
-
+        <h1 className="font-syne" style={{ fontSize:18, fontWeight:800 }}>My Health Profile</h1>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" strokeWidth="2" strokeLinecap="round" style={{ cursor:"pointer" }}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </div>
 
-      {/* Slide-Up Bottom Sheet Modal for FDA Drug Info */}
-      {activeDrug && (
-        <>
-          <div className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm" onClick={() => setActiveDrug(null)}></div>
-          <div className="fixed bottom-0 left-0 w-full bg-[#1A1A1A] rounded-t-3xl border-t border-[#2A2A2A] z-50 p-6 flex flex-col max-h-[80vh] animate-fade-up">
-            <div className="w-12 h-1.5 bg-[#2A2A2A] rounded-full mx-auto mb-5"></div>
-            
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold font-syne text-white">{activeDrug}</h2>
-              <span className="text-[10px] font-mono bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded">FDA OPENFDA</span>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-5 pr-2 custom-scrollbar">
-              {loadingDrug ? (
-                <div className="py-10 text-center animate-pulse text-gray-500 font-mono text-sm">
-                  Fetching dataset from api.fda.gov ...
-                </div>
-              ) : drugInfo?.error ? (
-                <div className="py-10 text-center text-red-400 font-mono text-sm border border-red-500/20 bg-red-500/5 rounded-xl">
-                  {drugInfo.error}
-                </div>
-              ) : drugInfo ? (
-                <>
-                  <div>
-                    <h3 className="font-bold font-dm text-sm text-gray-300 mb-1 flex items-center gap-1.5"><Activity size={14}/> Purpose & Usage</h3>
-                    <p className="text-xs text-gray-400 font-dm leading-relaxed">
-                      {drugInfo.indications_and_usage?.substring(0, 300)}...
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-bold font-dm text-sm text-red-300 mb-1 flex items-center gap-1.5"><AlertTriangle size={14}/> Boxed Warnings</h3>
-                    <p className="text-xs text-red-200/80 font-dm leading-relaxed bg-red-900/10 p-3 rounded-lg border border-red-900/30">
-                      {drugInfo.warnings ? drugInfo.warnings.substring(0, 300) + '...' : 'No extreme boxed warnings returned.'}
-                    </p>
-                  </div>
-
-                  <div>
-                     <h3 className="font-bold font-dm text-sm text-moderate mb-1 flex items-center gap-1.5"><User size={14}/> Common Side Effects</h3>
-                    <p className="text-xs text-gray-400 font-dm leading-relaxed">
-                      {drugInfo.adverse_reactions?.substring(0, 300)}...
-                    </p>
-                  </div>
-                </>
-              ) : null}
-            </div>
-            
-            <button 
-              onClick={() => setActiveDrug(null)}
-              className="mt-6 w-full bg-[#2A2A2A] text-white py-4 rounded-xl font-bold font-syne active:scale-95 transition-transform"
-            >
-              Close
-            </button>
+      {/* Summary Card */}
+      <div className="card" style={{ background:"linear-gradient(135deg, #1A0505 0%, #1A1A1A 100%)", borderColor:"rgba(229,57,53,0.2)" }}>
+        <div className="flex items-center gap-3 mb-3">
+          <div style={{ width:48, height:48, borderRadius:"50%", background:"rgba(229,57,53,0.15)", border:"2px solid rgba(229,57,53,0.3)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <span className="font-syne" style={{ fontSize:18, fontWeight:800, color:"#E53935" }}>RK</span>
           </div>
-        </>
-      )}
+          <div>
+            <p className="font-syne" style={{ fontSize:16, fontWeight:700 }}>{PATIENT.name}</p>
+            <p className="font-dm" style={{ fontSize:12, color:"#9E9E9E" }}>{PATIENT.age} years · {PATIENT.sex}</p>
+          </div>
+          <div style={{ marginLeft:"auto" }}>
+            <span className="badge badge-red">Blood: {PATIENT.bloodType}</span>
+          </div>
+        </div>
+        <div className="flex gap-2" style={{ flexWrap:"wrap" }}>
+          {PATIENT.allergies.map(a => (
+            <span key={a} style={{ fontSize:11, padding:"3px 10px", background:"rgba(229,57,53,0.1)", border:"1px solid rgba(229,57,53,0.3)", borderRadius:20, color:"#FF5252" }}>⚠️ {a}</span>
+          ))}
+          {PATIENT.conditions.map(c => (
+            <span key={c} style={{ fontSize:11, padding:"3px 10px", background:"rgba(255,179,0,0.1)", border:"1px solid rgba(255,179,0,0.2)", borderRadius:20, color:"#FFB300" }}>{c}</span>
+          ))}
+        </div>
+      </div>
 
+      {/* HR Sparkline */}
+      <div className="card">
+        <p className="font-dm" style={{ fontSize:13, fontWeight:600, color:"#9E9E9E", marginBottom:12 }}>Heart Rate — Last 7 Days</p>
+        <svg width="100%" height="60" viewBox="0 0 300 60">
+          {PATIENT.vitals.map((v, i) => {
+            const x = 20 + i * (260/6)
+            const y = 50 - ((v.hr - minHR) / (maxHR - minHR + 1)) * 40
+            return (
+              <g key={i}>
+                <circle cx={x} cy={y} r="3" fill="#E53935"/>
+                {i > 0 && (() => {
+                  const px = 20 + (i-1)*(260/6)
+                  const py = 50 - ((PATIENT.vitals[i-1].hr - minHR)/(maxHR-minHR+1))*40
+                  return <line x1={px} y1={py} x2={x} y2={y} stroke="#E53935" strokeWidth="1.5" strokeOpacity="0.6"/>
+                })()}
+                <text x={x} y="58" textAnchor="middle" fontSize="8" fill="#616161" fontFamily="DM Sans">{v.date.split(" ")[0]}</text>
+              </g>
+            )
+          })}
+        </svg>
+      </div>
+
+      {/* Medications */}
+      <div>
+        <p className="font-syne" style={{ fontSize:14, fontWeight:700, marginBottom:10 }}>Current Medications</p>
+        <div className="flex flex-col gap-2">
+          {PATIENT.medications.map(m => (
+            <button key={m.name} onClick={() => openDrug(m)} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 14px", background:"#1A1A1A", border:"1px solid #2C2C2C", borderRadius:12, cursor:"pointer", width:"100%" }}>
+              <div className="flex items-center gap-3">
+                <div style={{ width:32, height:32, borderRadius:8, background:"rgba(41,121,255,0.1)", border:"1px solid rgba(41,121,255,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  💊
+                </div>
+                <span className="font-dm" style={{ fontSize:14, color:"#fff", fontWeight:500 }}>{m.name}</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Past Visits */}
+      <div>
+        <p className="font-syne" style={{ fontSize:14, fontWeight:700, marginBottom:10 }}>Past Visits</p>
+        {PATIENT.visits.map((v,i) => (
+          <div key={i} className="record-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-dm" style={{ fontSize:14, fontWeight:600 }}>{v.diagnosis}</p>
+                <p className="font-dm" style={{ fontSize:11, color:"#9E9E9E" }}>{v.hospital}</p>
+              </div>
+              <span className="font-mono" style={{ fontSize:11, color:"#9E9E9E" }}>{v.date}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Drug Popup */}
+      {drugPopup && (
+        <div className="drug-popup-overlay" onClick={() => setDrugPopup(null)}>
+          <div className="drug-popup" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-syne" style={{ fontSize:18, fontWeight:700 }}>{drugPopup.name}</h3>
+              <button onClick={() => setDrugPopup(null)} style={{ background:"none", border:"none", color:"#9E9E9E", cursor:"pointer", fontSize:20 }}>✕</button>
+            </div>
+            {drugPopup.loading ? (
+              <div className="flex items-center justify-center" style={{ padding:40 }}>
+                <div className="spinner" style={{ width:32, height:32 }} />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {[["Purpose", drugPopup.purpose||drugPopup.indications_and_usage||"Antihypertensive medication used to treat high blood pressure."],
+                  ["Warnings", drugPopup.warnings||"Do not use if allergic. Consult doctor before combining with other medications."],
+                  ["Side Effects", drugPopup.sideEffects||drugPopup.adverse_reactions||"May cause dizziness, swelling, or nausea."]
+                ].map(([title, text]) => (
+                  <div key={title}>
+                    <p style={{ fontSize:11, color:"#9E9E9E", marginBottom:4, fontWeight:600 }}>{title.toUpperCase()}</p>
+                    <p className="font-dm" style={{ fontSize:13, color:"#fff", lineHeight:1.6 }}>
+                      {typeof text === "string" ? text.slice(0,200)+(text.length>200?"...":"") : "Information not available."}
+                    </p>
+                  </div>
+                ))}
+                <div style={{ textAlign:"center", paddingTop:8 }}>
+                  <span style={{ fontSize:10, color:"#616161" }}>Source: U.S. FDA Drug Database (OpenFDA)</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

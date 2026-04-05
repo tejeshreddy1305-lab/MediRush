@@ -1,30 +1,24 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './screens/Login';
-import Dashboard from './screens/Dashboard';
+import { useState, useEffect } from "react"
+import Login from "./pages/Login"
+import Dashboard from "./pages/Dashboard"
+import "./index.css"
 
-// Simple Auth Guard
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" />;
-};
+export default function App() {
+  const [auth, setAuth] = useState(() => {
+    const saved = localStorage.getItem("medirush_auth")
+    return saved ? JSON.parse(saved) : null
+  })
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route 
-          path="/dashboard" 
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } 
-        />
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-      </Routes>
-    </Router>
-  );
+  const handleLogin = (data) => {
+    localStorage.setItem("medirush_auth", JSON.stringify(data))
+    setAuth(data)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("medirush_auth")
+    setAuth(null)
+  }
+
+  if (!auth) return <Login onLogin={handleLogin} />
+  return <Dashboard auth={auth} onLogout={handleLogout} />
 }
-
-export default App;

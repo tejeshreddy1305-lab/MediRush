@@ -1,178 +1,70 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useRef } from "react"
 
-// ── ECG Waveform SVG ────────────────────────────────────────────
-function ECGLine() {
-  return (
-    <div className="w-full overflow-hidden" style={{ height: 60 }}>
-      <svg viewBox="0 0 400 60" className="w-full ecg-svg" preserveAspectRatio="none">
-        <path
-          className="ecg-path"
-          d="M0,30 L60,30 L70,30 L80,10 L90,50 L100,5 L110,55 L120,30 L140,30
-             L160,30 L170,30 L180,10 L190,50 L200,5 L210,55 L220,30 L240,30
-             L260,30 L270,30 L280,10 L290,50 L300,5 L310,55 L320,30 L360,30 L400,30"
-        />
-      </svg>
-    </div>
-  )
-}
-
-// ── SOS Pulse Rings ─────────────────────────────────────────────
-function SOSButton({ onClick, animate }) {
-  return (
-    <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
-      {/* Rings */}
-      <div
-        className="absolute rounded-full border-2"
-        style={{
-          borderColor: 'rgba(229,57,53,0.5)',
-          width: 170, height: 170,
-          animation: 'pulseRing 2s cubic-bezier(0.455,0.03,0.515,0.955) infinite',
-        }}
-      />
-      <div
-        className="absolute rounded-full border-2"
-        style={{
-          borderColor: 'rgba(229,57,53,0.3)',
-          width: 190, height: 190,
-          animation: 'pulseRing 2s cubic-bezier(0.455,0.03,0.515,0.955) 0.7s infinite',
-        }}
-      />
-
-      {/* Main button */}
-      <button
-        id="sos-button"
-        onClick={onClick}
-        className="btn-sos z-10 flex flex-col items-center justify-center gap-1"
-        aria-label="Emergency SOS"
-        style={{
-          width: 130, height: 130,
-          transition: animate ? 'all 0.4s ease' : undefined,
-          boxShadow: animate ? '0 0 80px rgba(229,57,53,1)' : '0 0 40px rgba(229,57,53,0.5)',
-        }}
-      >
-        {/* Cross icon */}
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="white">
-          <rect x="13" y="4" width="6" height="24" rx="3"/>
-          <rect x="4" y="13" width="24" height="6" rx="3"/>
-        </svg>
-        <span className="font-syne font-bold text-white tracking-widest text-xs">EMERGENCY</span>
-      </button>
-    </div>
-  )
-}
-
-// ── Main Screen ─────────────────────────────────────────────────
-export default function Home({ navigate }) {
-  const [pressed, setPressed] = useState(false)
-  const [location, setLocation] = useState('Tirupati, Andhra Pradesh')
-
-  useEffect(() => {
-    // Try to get real location name
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          // Use coordinates as fallback display
-          const { latitude, longitude } = pos.coords
-          setLocation(`${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E`)
-        },
-        () => {} // silently fall back
-      )
-    }
-  }, [])
-
-  const handleSOS = () => {
-    setPressed(true)
-    setTimeout(() => {
-      navigate('input')
-    }, 600)
-  }
+export default function HomeScreen({ go }) {
+  const svgRef = useRef()
 
   return (
-    <div
-      className="screen pt-safe"
-      style={{
-        backgroundColor: pressed ? '#E53935' : '#0D0D0D',
-        transition: 'background-color 0.5s ease',
-        minHeight: '100vh',
-      }}
-    >
-      {/* ── Top Bar ─────────────────── */}
-      <div className="flex items-center justify-between pt-6 pb-2">
+    <div className="screen" style={{ paddingTop: 0, background: "#0D0D0D" }}>
+      {/* Header */}
+      <div className="flex items-center justify-between" style={{ paddingTop: 52, paddingBottom: 8 }}>
         <div className="flex items-center gap-2">
-          {/* Red cross logo */}
-          <div className="flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <rect x="10" y="2" width="8" height="24" rx="4" fill="#E53935"/>
-              <rect x="2" y="10" width="24" height="8" rx="4" fill="#E53935"/>
+          <div style={{ width: 28, height: 28, background: "#E53935", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v12M2 8h12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
             </svg>
           </div>
-          <span className="font-syne font-bold text-white text-xl tracking-tight">MediRush</span>
+          <span className="font-syne" style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em" }}>MediRush</span>
         </div>
-        {/* Avatar */}
-        <button
-          id="profile-avatar"
-          onClick={() => navigate('records')}
-          className="flex items-center justify-center rounded-full active:scale-95 transition-transform"
-          style={{ width: 40, height: 40, background: '#1A1A1A', border: '1px solid #2A2A2A' }}
-          aria-label="Profile"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#888">
-            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        <button onClick={() => go("records")} style={{ width: 36, height: 36, borderRadius: "50%", background: "#1A1A1A", border: "1px solid #2C2C2C", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" strokeWidth="2" strokeLinecap="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
           </svg>
         </button>
       </div>
 
-      {/* ── ECG Line ─────────────────── */}
-      <div className="mt-4 mb-2 opacity-60">
-        <ECGLine />
+      {/* ECG Line */}
+      <div className="ecg-container" style={{ marginTop: 16 }}>
+        <svg ref={svgRef} className="ecg-line" width="800" height="48" viewBox="0 0 800 48">
+          <polyline
+            points="0,24 40,24 50,24 60,4 70,44 80,4 90,24 100,24 140,24 150,24 160,4 170,44 180,4 190,24 200,24 240,24 250,24 260,4 270,44 280,4 290,24 300,24 340,24 350,24 360,4 370,44 380,4 390,24 400,24 440,24 450,24 460,4 470,44 480,4 490,24 500,24 540,24 550,24 560,4 570,44 580,4 590,24 600,24 640,24 650,24 660,4 670,44 680,4 690,24 700,24 740,24 750,24 760,4 770,44 780,4 790,24 800,24"
+            fill="none" stroke="#E53935" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"
+          />
+        </svg>
       </div>
 
-      {/* ── SOS Button ────────────────── */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 py-6">
-        <SOSButton onClick={handleSOS} animate={pressed} />
-
-        <p className="font-dm text-sm" style={{ color: '#888' }}>
-          Tap once. Help is on the way.
-        </p>
-
-        {/* ── Action Buttons ──────────── */}
-        <div className="w-full flex flex-col gap-3 mt-4">
-          <button
-            id="my-health-records-btn"
-            className="btn-outline"
-            onClick={() => navigate('records')}
-          >
-            <span className="flex items-center gap-2">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#888">
-                <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/>
-              </svg>
-              My Health Records
-            </span>
-          </button>
-          <button
-            id="find-hospital-btn"
-            className="btn-outline"
-            onClick={() => navigate('input')}
-          >
-            <span className="flex items-center gap-2">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#888">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-              </svg>
-              Find Nearest Hospital
-            </span>
+      {/* SOS Button */}
+      <div className="flex flex-col items-center justify-center" style={{ marginTop: 32, gap: 0 }}>
+        <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 200, height: 200 }}>
+          <div className="sos-ring" />
+          <div className="sos-ring" style={{ animationDelay: "0.7s" }} />
+          <button className="sos-btn" onClick={() => go("input")}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 2v20M2 12h20"/>
+            </svg>
+            <span className="font-syne" style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.15em", color: "#fff" }}>EMERGENCY</span>
           </button>
         </div>
+        <p className="font-dm" style={{ color: "#9E9E9E", fontSize: 14, marginTop: 20, textAlign: "center" }}>
+          Tap once. Help is on the way.
+        </p>
       </div>
 
-      {/* ── Location Strip ──────────── */}
-      <div
-        className="flex items-center gap-2 py-4 mb-2"
-        style={{ borderTop: '1px solid #1A1A1A' }}
-      >
-        <div className="w-2 h-2 rounded-full" style={{ background: '#00C853', boxShadow: '0 0 6px #00C853' }} />
-        <span className="font-dm text-xs" style={{ color: '#888' }}>
-          Location: {location}
-        </span>
+      {/* Action Buttons */}
+      <div className="flex flex-col gap-3" style={{ marginTop: 32 }}>
+        <button className="btn-outline" onClick={() => go("records")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          My Health Records
+        </button>
+        <button className="btn-outline-red" onClick={() => go("hospitals")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+          Find Nearest Hospital
+        </button>
+      </div>
+
+      {/* Location Strip */}
+      <div className="flex items-center gap-2" style={{ marginTop: "auto", paddingBottom: 32, paddingTop: 24, justifyContent: "center" }}>
+        <span className="vitals-dot green" />
+        <span className="font-dm" style={{ fontSize: 12, color: "#9E9E9E" }}>Location: Tirupati, Andhra Pradesh</span>
       </div>
     </div>
   )

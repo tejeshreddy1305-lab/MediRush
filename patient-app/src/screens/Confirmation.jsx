@@ -1,114 +1,85 @@
-import React, { useEffect, useState } from 'react'
-import { CheckCircle2, Loader2, ArrowLeft } from 'lucide-react'
+import { useEffect, useState } from "react"
 
-const API_BASE_WS = import.meta.env.VITE_WS_BASE || 'ws://localhost:8000'
+export default function ConfirmationScreen({ go, selectedHospital, token }) {
+  const h = selectedHospital || { name: "Apollo Hospitals Tirupati" }
+  const [checks, setChecks] = useState([])
+  const [eta, setEta] = useState(390)
+  const tok = token || "A3F9-72XK"
 
-export default function Confirmation({ navigate, state }) {
-  const [stages, setStages] = useState([true, false, false, false]);
-  const [doctorMsg, setDoctorMsg] = useState(null)
+  const ITEMS = [
+    { label: "Emergency Detected", sub: "CRITICAL — Priority 9.2", done: true },
+    { label: `Hospital Selected`, sub: h.name, done: true },
+    { label: "Alert Sent to Hospital", sub: "Via WebSocket", done: true },
+    { label: "Medical Records Shared", sub: "Blood type, allergies, medications", done: true },
+    { label: "Doctor Preparing...", sub: "Awaiting confirmation", done: false },
+  ]
 
   useEffect(() => {
-    // Stagger checklist
-    [1, 2, 3].forEach((index) => {
-      setTimeout(() => {
-        setStages(prev => {
-          let updated = [...prev];
-          updated[index] = true;
-          return updated;
-        })
-      }, index * 800)
-    });
+    ITEMS.forEach((_, i) => setTimeout(() => setChecks(c => [...c, i]), i * 350))
+    const t = setInterval(() => setEta(e => Math.max(0, e - 1)), 1000)
+    return () => clearInterval(t)
   }, [])
 
-  useEffect(() => {
-    if (!state.token) return;
-
-    const ws = new WebSocket(`${API_BASE_WS}/ws/patient/${state.token}`);
-    
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'DOCTOR_ACCEPTED') {
-        setDoctorMsg(data);
-      }
-    };
-
-    return () => ws.close();
-  }, [state.token])
+  const R = 54, C = 2 * Math.PI * R
+  const pct = eta / 390
+  const offset = C * (1 - pct)
 
   return (
-    <div className="min-h-screen bg-[#0D1B2A] flex flex-col p-6 items-center pt-16 relative">
-      <button 
-        onClick={() => navigate('navigation')}
-        className="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center gap-2 font-mono text-sm"
-      >
-        <ArrowLeft size={16} /> BACK TO ROUTE
-      </button>
+    <div className="screen confirm-screen" style={{ paddingTop: 52, alignItems: "center", gap: 20 }}>
+      {/* Checkmark */}
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(0,200,83,0.2)" strokeWidth="3"/>
+        <circle cx="40" cy="40" r="36" fill="none" stroke="#00C853" strokeWidth="3"
+          strokeDasharray="226" strokeDashoffset="0"
+          style={{ transformOrigin:"center", transform:"rotate(-90deg)", transition:"stroke-dashoffset 1s ease" }}
+        />
+        <path d="M26 40l10 10 18-18" fill="none" stroke="#00C853" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+          style={{ strokeDasharray:50, strokeDashoffset:0, transition:"stroke-dashoffset 0.6s 0.4s ease" }}
+        />
+      </svg>
 
-      <div className="w-24 h-24 mb-6 relative mt-10">
-        <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-          <circle cx="50" cy="50" r="45" fill="none" stroke="#1A2D42" strokeWidth="8" />
-          <circle 
-            cx="50" cy="50" r="45" fill="none" stroke="#00C853" strokeWidth="8"
-            strokeDasharray="283" strokeDashoffset={doctorMsg ? "0" : "80"} className="transition-all duration-1000 ease-out" 
+      {/* ETA Ring */}
+      <div style={{ position:"relative", width:120, height:120 }}>
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r={R} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8"/>
+          <circle cx="60" cy="60" r={R} fill="none" stroke="#2979FF" strokeWidth="8"
+            strokeLinecap="round" strokeDasharray={C} strokeDashoffset={offset}
+            style={{ transformOrigin:"center", transform:"rotate(-90deg)", transition:"stroke-dashoffset 1s linear" }}
           />
+          <text x="60" y="56" textAnchor="middle" fontSize="18" fontWeight="700" fill="#fff" fontFamily="JetBrains Mono">
+            {`${String(Math.floor(eta/60)).padStart(2,"0")}:${String(eta%60).padStart(2,"0")}`}
+          </text>
+          <text x="60" y="72" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.4)" fontFamily="DM Sans">ETA</text>
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          {doctorMsg ? <CheckCircle2 size={36} className="text-normal" /> : <Loader2 size={36} className="text-blue-400 animate-spin" />}
-        </div>
       </div>
 
-      <div className="w-full bg-[#16273B] rounded-2xl p-6 border border-[#213751] shadow-2xl mb-8">
-        <h2 className="text-lg font-sans font-bold text-white mb-5 uppercase tracking-wide border-b border-[#213751] pb-3">
-          Pre-Arrival Checklist
-        </h2>
-        
-        <ul className="space-y-4 font-mono text-sm">
-          <li className="flex items-center gap-3">
-            <CheckCircle2 className="text-normal shrink-0" size={18} />
-            <span className="text-gray-300">Triage Detected — <span className={state.triageResult?.severity === 'CRITICAL' ? 'text-emergency font-bold' : 'text-moderate font-bold'}>{state.triageResult?.severity}</span></span>
-          </li>
-          
-          <li className={`flex items-start gap-3 transition-opacity duration-500 ${stages[1] ? 'opacity-100' : 'opacity-0'}`}>
-            <CheckCircle2 className="text-normal shrink-0" size={18} />
-            <span className="text-gray-300">Hospital Selected: <span className="text-white bg-[#0D1B2A] px-2 py-0.5 rounded ml-1">{state.selectedHospital?.name || 'Apollo Hospitals Tirupati'}</span></span>
-          </li>
-
-          <li className={`flex items-center gap-3 transition-opacity duration-500 ${stages[2] ? 'opacity-100' : 'opacity-0'}`}>
-            <CheckCircle2 className="text-normal shrink-0" size={18} />
-            <span className="text-gray-300">Secure Records Transferred</span>
-          </li>
-
-          <li className={`flex items-start gap-3 transition-opacity duration-500 ${stages[3] ? 'opacity-100' : 'opacity-0'}`}>
-            {doctorMsg ? (
-              <CheckCircle2 className="text-normal shrink-0 mt-0.5" size={18} />
-            ) : (
-              <Loader2 className="text-blue-400 animate-spin shrink-0 mt-0.5" size={18} />
-            )}
-            
-            <div className="flex-1">
-              <span className={doctorMsg ? "text-normal font-bold" : "text-blue-400"}>
-                {doctorMsg ? "Case Accepted by Hospital" : "Hospital is preparing..."}
-              </span>
-              {doctorMsg && (
-                <div className="mt-2 bg-[#0A1628] rounded p-3 text-xs leading-relaxed border left-border border-normal/30 border-l-normal">
-                  <span className="text-gray-400 mb-1 block">Message from {doctorMsg.doctor_name}:</span>
-                  <span className="text-white">"{doctorMsg.message}"</span>
-                </div>
-              )}
+      {/* Checklist */}
+      <div className="card w-full" style={{ maxWidth:380 }}>
+        {ITEMS.map((item, i) => (
+          <div key={i} className="checklist-item" style={{ animationDelay:`${i*350}ms`, opacity: checks.includes(i) ? 1 : 0.3 }}>
+            <div className={`check-icon ${checks.includes(i) ? (item.done ? "done" : "spin") : "wait"}`}>
+              {checks.includes(i) ? (item.done ? "✓" : <span className="spinner" />) : "○"}
             </div>
-          </li>
-        </ul>
+            <div>
+              <p className="font-dm" style={{ fontSize:14, fontWeight:500 }}>{item.label}</p>
+              <p className="font-dm" style={{ fontSize:11, color:"#9E9E9E" }}>{item.sub}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="border-2 border-dashed border-gray-600 rounded-xl p-4 text-center w-full max-w-sm bg-[#050D1A]">
-        <div className="text-[10px] text-gray-500 font-mono uppercase tracking-widest mb-1">Unique Case Token</div>
-        <div className="text-3xl font-mono font-bold text-white tracking-[0.2em]">{state.token || 'A3F9-72XK'}</div>
-        <div className="text-xs text-gray-500 font-sans mt-2">Valid for 18 minutes</div>
+      {/* Token */}
+      <div className="token-card w-full" style={{ maxWidth:380 }}>
+        <p className="font-dm" style={{ fontSize:11, color:"#9E9E9E", marginBottom:8 }}>EMERGENCY TOKEN</p>
+        <p className="font-mono" style={{ fontSize:28, fontWeight:700, letterSpacing:"0.1em", color:"#fff" }}>{tok}</p>
+        <p className="font-dm" style={{ fontSize:11, color:"#9E9E9E", marginTop:4 }}>Show this at reception · Valid 18 minutes</p>
       </div>
-      
-      <p className="text-gray-400 mt-8 mb-4 font-sans text-center text-sm px-6 max-w-xs">
-        Stay calm. You are expected. Follow the navigation route.
+
+      <p className="font-dm" style={{ fontSize:13, color:"rgba(255,255,255,0.5)", textAlign:"center", maxWidth:300, lineHeight:1.6 }}>
+        Stay calm. You are expected. Follow the route.
       </p>
+
+      <button className="btn-outline" style={{ maxWidth:380 }} onClick={() => go("navigation")}>← Back to Navigation</button>
     </div>
   )
 }

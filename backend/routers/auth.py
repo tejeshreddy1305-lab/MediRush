@@ -1,45 +1,38 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db, HospitalStaff
+from passlib.context import CryptContext
+from jose import jwt
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 import os
-from datetime import datetime, timedelta
-from jose import jwt
-from passlib.context import CryptContext
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
-
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
-SECRET_KEY = os.getenv("JWT_SECRET", "medirush-dev-secret-key-2024")
-ALGORITHM = "HS256"
+router = APIRouter(prefix="/api", tags=["Auth"])
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+SECRET = os.getenv("JWT_SECRET", "medirush-secret-2024")
 
 class LoginRequest(BaseModel):
     email: str
     password: str
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=480)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-@router.post("/login")
+@router.post("/auth/login")
 def login(req: LoginRequest, db: Session = Depends(get_db)):
-    staff = db.query(HospitalStaff).filter(HospitalStaff.email == req.email).first()
-    if not staff:
+    user = db.query(HospitalStaff).filter(HospitalStaff.email == req.email).first()
+    if not user or not pwd_context.verify(req.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    if not verify_password(req.password, staff.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-        
-    access_token = create_access_token(
-        data={"sub": staff.email, "hospital_id": staff.hospital_id, "role": staff.role}
+    token = jwt.encode(
+        {"sub": user.id, "hospital_id": user.hospital_id,
+         "role": user.role, "name": user.name,
+         "exp": datetime.utcnow() + timedelta(hours=8)},
+        SECRET, algorithm="HS256"
     )
-    return {"access_token": access_token, "token_type": "bearer", "hospital_id": staff.hospital_id}
+    return {"token": token, "name": user.name, "role": user.role,
+            "hospital_id": user.hospital_id}
+
+@router.get("/auth/verify")
+def verify(token: str):
+    try:
+        data = jwt.decode(token, SECRET, algorithms=["HS256"])
+        return {"valid": True, "data": data}
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
