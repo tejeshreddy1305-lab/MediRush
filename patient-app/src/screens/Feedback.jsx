@@ -22,13 +22,13 @@ export default function FeedbackScreen({ go, showToast }) {
 
   if (submitted) {
     return (
-      <div className="screen" style={{ background: "#0D0D0D", justifyContent: "center", alignItems: "center", textAlign: "center", gap: 24 }}>
+      <div className="screen" style={{ background: "var(--bg)", justifyContent: "center", alignItems: "center", textAlign: "center", gap: 24 }}>
         <div style={{ width: 80, height: 80, background: "#00C853", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", animation: "popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)" }}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div>
-          <h2 className="font-syne" style={{ fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 8 }}>Thank you!</h2>
-          <p className="font-dm" style={{ fontSize: 16, color: "#9E9E9E", maxWidth: 280 }}>Your feedback has been recorded. It helps us improve care for everyone.</p>
+          <h2 className="font-syne" style={{ fontSize: 24, fontWeight: 800, color: "var(--text)", marginBottom: 8 }}>Thank you!</h2>
+          <p className="font-dm" style={{ fontSize: 16, color: "var(--text2)", maxWidth: 280 }}>Your feedback has been recorded. It helps us improve care for everyone.</p>
         </div>
         <button className="btn-primary" onClick={() => go("home")} style={{ maxWidth: 240, marginTop: 12 }}>
           Back to Home
@@ -38,11 +38,11 @@ export default function FeedbackScreen({ go, showToast }) {
   }
 
   return (
-    <div className="screen" style={{ background: "#0D0D0D", paddingTop: 60, paddingLeft: 24, paddingRight: 24 }}>
-      <h1 className="font-syne" style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8, textAlign: "center" }}>
+    <div className="screen" style={{ background: "var(--bg)", paddingTop: 60, paddingLeft: 24, paddingRight: 24 }}>
+      <h1 className="font-syne" style={{ fontSize: 28, fontWeight: 800, color: "var(--text)", marginBottom: 8, textAlign: "center" }}>
         How was your emergency response?
       </h1>
-      <p className="font-dm" style={{ fontSize: 16, color: "#9E9E9E", textAlign: "center", marginBottom: 40 }}>
+      <p className="font-dm" style={{ fontSize: 16, color: "var(--text2)", textAlign: "center", marginBottom: 40 }}>
         Your feedback helps improve care for everyone
       </p>
 
@@ -59,8 +59,8 @@ export default function FeedbackScreen({ go, showToast }) {
             >
               <svg 
                 width="48" height="48" viewBox="0 0 24 24" 
-                fill={(hoverRating || rating) >= star ? "#FFD600" : "none"} 
-                stroke={(hoverRating || rating) >= star ? "#FFD600" : "#2C2C2C"} 
+                fill={(hoverRating || rating) >= star ? "#F9A825" : "none"} 
+                stroke={(hoverRating || rating) >= star ? "#F9A825" : "var(--border)"} 
                 strokeWidth="1.5"
                 style={{ transform: (hoverRating === star) ? "scale(1.2)" : "scale(1)" }}
               >
@@ -69,7 +69,7 @@ export default function FeedbackScreen({ go, showToast }) {
             </button>
           ))}
         </div>
-        <p className="font-syne" style={{ fontSize: 18, fontWeight: 700, color: (hoverRating || rating) ? "#FFD600" : "#333", height: 24 }}>
+        <p className="font-syne" style={{ fontSize: 18, fontWeight: 700, color: (hoverRating || rating) ? "#F9A825" : "var(--text3)", height: 24 }}>
           {LABELS[hoverRating || rating] || ""}
         </p>
       </div>
@@ -80,8 +80,8 @@ export default function FeedbackScreen({ go, showToast }) {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         style={{ 
-          width: "100%", height: 120, background: "#1A1A1A", border: "1px solid #2C2C2C", borderRadius: 16, 
-          padding: 16, color: "#fff", fontSize: 15, fontFamily: "inherit", marginBottom: 24, resize: "none", outline: "none" 
+          width: "100%", height: 120, background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: 16, 
+          padding: 16, color: "var(--text)", fontSize: 15, fontFamily: "inherit", marginBottom: 24, resize: "none", outline: "none" 
         }}
       />
 

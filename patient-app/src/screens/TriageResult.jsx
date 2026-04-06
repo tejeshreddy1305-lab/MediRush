@@ -140,11 +140,11 @@ export default function TriageResultScreen({ go, triageData, setHospitals }) {
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 400 }}>
                 <thead>
                   <tr>
-                    <th style={{ padding: "16px 12px", textAlign: "left", fontSize: 11, color: "#9E9E9E", borderBottom: "1px solid #F5F5F5", background: "#fff", position: "sticky", left: 0, zIndex: 2 }}>CRITERIA</th>
+                    <th style={{ padding: "16px 12px", textAlign: "left", fontSize: 11, color: "var(--text2)", borderBottom: "1px solid var(--border)", background: "var(--bg)", position: "sticky", left: 0, zIndex: 2 }}>CRITERIA</th>
                     {COMPARISON.map(h => (
-                      <th key={h.name} style={{ padding: "16px 12px", borderBottom: "1px solid #F5F5F5", background: h.best ? "rgba(0,200,83,0.05)" : "#fff", borderLeft: h.best ? "2px solid #00C853" : "none" }}>
-                        {h.best && <div style={{ fontSize: 9, color: "#00C853", fontWeight: 800, marginBottom: 4 }}>BEST MATCH</div>}
-                        <div style={{ fontSize: 13, color: "#1A1A1A" }}>{h.name}</div>
+                      <th key={h.name} style={{ padding: "16px 12px", borderBottom: "1px solid var(--border)", background: h.best ? "rgba(46,125,50,0.05)" : "var(--bg)", borderLeft: h.best ? "2px solid var(--green)" : "none" }}>
+                        {h.best && <div style={{ fontSize: 9, color: "var(--green)", fontWeight: 800, marginBottom: 4 }}>BEST MATCH</div>}
+                        <div style={{ fontSize: 13, color: "var(--text)" }}>{h.name}</div>
                       </th>
                     ))}
                   </tr>
@@ -159,19 +159,19 @@ export default function TriageResultScreen({ go, triageData, setHospitals }) {
                     { key: "score", label: "Overall Score" },
                   ].map(row => (
                     <tr key={row.key}>
-                      <td style={{ padding: "14px 12px", fontSize: 12, fontWeight: 600, color: "#666", borderBottom: "1px solid #F5F5F5", background: "#fff", position: "sticky", left: 0, zIndex: 1 }}>{row.label}</td>
+                      <td style={{ padding: "14px 12px", fontSize: 12, fontWeight: 600, color: "var(--text2)", borderBottom: "1px solid var(--border)", background: "var(--bg)", position: "sticky", left: 0, zIndex: 1 }}>{row.label}</td>
                       {COMPARISON.map(h => (
-                        <td key={h.name} style={{ padding: "14px 12px", textAlign: "center", borderBottom: "1px solid #F5F5F5", background: h.best ? "rgba(0,200,83,0.05)" : "transparent", borderLeft: h.best ? "2px solid #00C853" : "none" }}>
+                        <td key={h.name} style={{ padding: "14px 12px", textAlign: "center", borderBottom: "1px solid var(--border)", background: h.best ? "rgba(46,125,50,0.05)" : "transparent", borderLeft: h.best ? "2px solid var(--green)" : "none" }}>
                           {row.key === "match" ? (
-                            <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 10, background: h[row.key] === "High" ? "#E8F5E9" : h[row.key] === "Medium" ? "#FFF3E0" : "#F5F5F5", color: h[row.key] === "High" ? "#2E7D32" : h[row.key] === "Medium" ? "#EF6C00" : "#9E9E9E", fontWeight: 700 }}>
+                            <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 10, background: h[row.key] === "High" ? "#E8F5E9" : h[row.key] === "Medium" ? "#FFF3E0" : "var(--card)", color: h[row.key] === "High" ? "var(--green)" : h[row.key] === "Medium" ? "var(--moderate)" : "var(--text3)", fontWeight: 700 }}>
                               {h[row.key]}
                             </span>
                           ) : row.key === "score" ? (
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, fontWeight: 700, fontSize: 14, color: h.best ? "#00C853" : "#333" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, fontWeight: 700, fontSize: 14, color: h.best ? "var(--green)" : "var(--text)" }}>
                               {h[row.key]} <span style={{ fontSize: 12 }}>⭐</span>
                             </div>
                           ) : (
-                            <span style={{ fontSize: 13, color: "#1A1A1A", fontWeight: row.key === "wait" ? 700 : 400 }}>{h[row.key]}</span>
+                            <span style={{ fontSize: 13, color: "var(--text)", fontWeight: row.key === "wait" ? 700 : 400 }}>{h[row.key]}</span>
                           )}
                         </td>
                       ))}

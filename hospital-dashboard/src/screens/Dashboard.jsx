@@ -23,9 +23,9 @@ export default function Dashboard() {
       <header className="h-14 bg-navy-800 border-b border-navy-700 flex justify-between items-center px-4 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-3 h-3 rounded-full bg-emergency animate-pulse"></div>
-          <h1 className="font-sans font-bold text-lg tracking-wide uppercase">MediRush <span className="text-gray-400 font-mono text-xs ml-2">ID: HOS-{hospitalId}</span></h1>
+          <h1 className="font-sans font-bold text-lg tracking-wide uppercase text-slate-800">MediRush <span className="text-slate-400 font-mono text-xs ml-2">ID: HOS-{hospitalId}</span></h1>
         </div>
-        <button onClick={handleLogout} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-mono">
+        <button onClick={handleLogout} className="text-slate-500 hover:text-emergency flex items-center gap-2 text-sm font-mono">
           <LogOut size={16} /> Disconnect
         </button>
       </header>
@@ -42,7 +42,7 @@ export default function Dashboard() {
           {selectedPatient ? (
             <PatientCard patient={selectedPatient} hospitalId={hospitalId} />
           ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-500 font-mono text-sm border border-dashed border-navy-700 rounded-xl">
+            <div className="flex-1 flex items-center justify-center text-slate-400 font-mono text-sm border border-dashed border-slate-200 rounded-xl">
               Select an incoming alert to view patient details
             </div>
           )}

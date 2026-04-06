@@ -2,16 +2,16 @@
 
 * { margin:0; padding:0; box-sizing:border-box; }
 :root {
-  --bg:    #050D1A;
-  --panel: #0A1628;
-  --card:  #0F1F3D;
-  --border:#1A3A5C;
-  --red:   #FF3B30;
-  --teal:  #00BCD4;
-  --green: #00E676;
-  --amber: #FFB300;
-  --text:  #FFFFFF;
-  --muted: #607D8B;
+  --bg:    #FFFFFF;
+  --panel: #F8FAFC;
+  --card:  #F1F5F9;
+  --border:#CBD5E1;
+  --red:   #D32F2F;
+  --teal:  #0097A7;
+  --green: #2E7D32;
+  --amber: #F57C00;
+  --text:  #0F172A;
+  --muted: #64748B;
 }
 html,body,#root { height:100%; background:var(--bg); color:var(--text); font-family:'Manrope',sans-serif; overflow:hidden; }
 .mono { font-family:'IBM Plex Mono',monospace; }

@@ -3,25 +3,25 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg: #0D0D0D;
-  --bg2: #111111;
-  --card: #1A1A1A;
-  --card2: #1E1E1E;
-  --border: #2C2C2C;
-  --red: #E53935;
-  --red2: #FF5252;
-  --red-glow: rgba(229,57,53,0.3);
-  --green: #00C853;
-  --green-glow: rgba(0,200,83,0.25);
-  --amber: #FFB300;
-  --blue: #1565C0;
-  --blue2: #2979FF;
-  --text: #FFFFFF;
-  --text2: #9E9E9E;
-  --text3: #616161;
-  --critical: #B71C1C;
-  --moderate: #E65100;
-  --normal: #1B5E20;
+  --bg: #FFFFFF;
+  --bg2: #F8FAFC;
+  --card: #F1F5F9;
+  --card2: #E2E8F0;
+  --border: #CBD5E1;
+  --red: #D32F2F;
+  --red2: #B71C1C;
+  --red-glow: rgba(211, 47, 47, 0.15);
+  --green: #2E7D32;
+  --green-glow: rgba(46, 125, 50, 0.15);
+  --amber: #F57C00;
+  --blue: #1976D2;
+  --blue2: #0D47A1;
+  --text: #0F172A;
+  --text2: #475569;
+  --text3: #94A3B8;
+  --critical: #C62828;
+  --moderate: #EF6C00;
+  --normal: #2E7D32;
 }
 
 html, body, #root {
@@ -362,15 +362,12 @@ html, body, #root {
 
 /* ── SLIDER ── */
 input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 6px;
-  background: var(--border);
-  border-radius: 3px;
   outline: none;
+  appearance: none;
 }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
   background: var(--red);

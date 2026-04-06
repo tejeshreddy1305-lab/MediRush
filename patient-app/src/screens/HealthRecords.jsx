@@ -55,14 +55,14 @@ export default function HealthRecordsScreen({ go }) {
       </div>
 
       {/* Summary Card */}
-      <div className="card" style={{ background:"linear-gradient(135deg, #1A0505 0%, #1A1A1A 100%)", borderColor:"rgba(229,57,53,0.2)" }}>
+      <div className="card" style={{ background:"linear-gradient(135deg, var(--bg) 0%, var(--card) 100%)", borderColor:"var(--border)" }}>
         <div className="flex items-center gap-3 mb-3">
-          <div style={{ width:48, height:48, borderRadius:"50%", background:"rgba(229,57,53,0.15)", border:"2px solid rgba(229,57,53,0.3)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-            <span className="font-syne" style={{ fontSize:18, fontWeight:800, color:"#E53935" }}>RK</span>
+          <div style={{ width:48, height:48, borderRadius:"50%", background:"var(--red-glow)", border:"2px solid var(--red)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <span className="font-syne" style={{ fontSize:18, fontWeight:800, color:"var(--red)" }}>RK</span>
           </div>
           <div>
-            <p className="font-syne" style={{ fontSize:16, fontWeight:700 }}>{PATIENT.name}</p>
-            <p className="font-dm" style={{ fontSize:12, color:"#9E9E9E" }}>{PATIENT.age} years · {PATIENT.sex}</p>
+            <p className="font-syne" style={{ fontSize:16, fontWeight:700, color:"var(--text)" }}>{PATIENT.name}</p>
+            <p className="font-dm" style={{ fontSize:12, color:"var(--text2)" }}>{PATIENT.age} years · {PATIENT.sex}</p>
           </div>
           <div style={{ marginLeft:"auto" }}>
             <span className="badge badge-red">Blood: {PATIENT.bloodType}</span>
@@ -70,10 +70,10 @@ export default function HealthRecordsScreen({ go }) {
         </div>
         <div className="flex gap-2" style={{ flexWrap:"wrap" }}>
           {PATIENT.allergies.map(a => (
-            <span key={a} style={{ fontSize:11, padding:"3px 10px", background:"rgba(229,57,53,0.1)", border:"1px solid rgba(229,57,53,0.3)", borderRadius:20, color:"#FF5252" }}>⚠️ {a}</span>
+            <span key={a} style={{ fontSize:11, padding:"3px 10px", background:"var(--red-glow)", border:"1px solid var(--red)", borderRadius:20, color:"var(--red2)" }}>⚠️ {a}</span>
           ))}
           {PATIENT.conditions.map(c => (
-            <span key={c} style={{ fontSize:11, padding:"3px 10px", background:"rgba(255,179,0,0.1)", border:"1px solid rgba(255,179,0,0.2)", borderRadius:20, color:"#FFB300" }}>{c}</span>
+            <span key={c} style={{ fontSize:11, padding:"3px 10px", background:"rgba(245,124,0,0.1)", border:"1px solid var(--amber)", borderRadius:20, color:"var(--amber)" }}>{c}</span>
           ))}
         </div>
       </div>
@@ -105,14 +105,14 @@ export default function HealthRecordsScreen({ go }) {
         <p className="font-syne" style={{ fontSize:14, fontWeight:700, marginBottom:10 }}>Current Medications</p>
         <div className="flex flex-col gap-2">
           {PATIENT.medications.map(m => (
-            <button key={m.name} onClick={() => openDrug(m)} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 14px", background:"#1A1A1A", border:"1px solid #2C2C2C", borderRadius:12, cursor:"pointer", width:"100%" }}>
+            <button key={m.name} onClick={() => openDrug(m)} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 14px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:12, cursor:"pointer", width:"100%" }}>
               <div className="flex items-center gap-3">
-                <div style={{ width:32, height:32, borderRadius:8, background:"rgba(41,121,255,0.1)", border:"1px solid rgba(41,121,255,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                <div style={{ width:32, height:32, borderRadius:8, background:"var(--card)", border:"1px solid var(--border)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                   💊
                 </div>
-                <span className="font-dm" style={{ fontSize:14, color:"#fff", fontWeight:500 }}>{m.name}</span>
+                <span className="font-dm" style={{ fontSize:14, color:"var(--text)", fontWeight:500 }}>{m.name}</span>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
           ))}
         </div>
@@ -137,10 +137,10 @@ export default function HealthRecordsScreen({ go }) {
       {/* Drug Popup */}
       {drugPopup && (
         <div className="drug-popup-overlay" onClick={() => setDrugPopup(null)}>
-          <div className="drug-popup" onClick={e => e.stopPropagation()}>
+          <div className="drug-popup" style={{ background:"var(--bg)", borderTop:"1.5px solid var(--red)" }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-syne" style={{ fontSize:18, fontWeight:700 }}>{drugPopup.name}</h3>
-              <button onClick={() => setDrugPopup(null)} style={{ background:"none", border:"none", color:"#9E9E9E", cursor:"pointer", fontSize:20 }}>✕</button>
+              <h3 className="font-syne" style={{ fontSize:18, fontWeight:700, color:"var(--text)" }}>{drugPopup.name}</h3>
+              <button onClick={() => setDrugPopup(null)} style={{ background:"none", border:"none", color:"var(--text3)", cursor:"pointer", fontSize:20 }}>✕</button>
             </div>
             {drugPopup.loading ? (
               <div className="flex items-center justify-center" style={{ padding:40 }}>
@@ -153,8 +153,8 @@ export default function HealthRecordsScreen({ go }) {
                   ["Side Effects", drugPopup.sideEffects||drugPopup.adverse_reactions||"May cause dizziness, swelling, or nausea."]
                 ].map(([title, text]) => (
                   <div key={title}>
-                    <p style={{ fontSize:11, color:"#9E9E9E", marginBottom:4, fontWeight:600 }}>{title.toUpperCase()}</p>
-                    <p className="font-dm" style={{ fontSize:13, color:"#fff", lineHeight:1.6 }}>
+                    <p style={{ fontSize:11, color:"var(--text3)", marginBottom:4, fontWeight:600 }}>{title.toUpperCase()}</p>
+                    <p className="font-dm" style={{ fontSize:13, color:"var(--text)", lineHeight:1.6 }}>
                       {typeof text === "string" ? text.slice(0,200)+(text.length>200?"...":"") : "Information not available."}
                     </p>
                   </div>

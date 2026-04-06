@@ -92,8 +92,8 @@ export default function HospitalSelectScreen({ go, triageData, setSelectedHospit
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
         <div>
-          <h1 className="font-syne" style={{ fontSize: 18, fontWeight: 800, textAlign:"center" }}>Best Hospitals For You</h1>
-          <p className="font-dm" style={{ fontSize: 11, color:"#9E9E9E", textAlign:"center" }}>Ranked by specialty match, availability & distance</p>
+          <h1 className="font-syne" style={{ fontSize: 18, fontWeight: 800, textAlign:"center", color:"var(--text)" }}>Best Hospitals For You</h1>
+          <p className="font-dm" style={{ fontSize: 11, color:"var(--text2)", textAlign:"center" }}>Ranked by specialty match, availability & distance</p>
         </div>
         <div style={{ width: 20 }} />
       </div>
@@ -120,25 +120,25 @@ export default function HospitalSelectScreen({ go, triageData, setSelectedHospit
               {BADGES[i] && <div style={{ marginBottom:8 }}><span className={`badge ${i===0?"badge-gold":"badge-blue"}`}>{BADGES[i]}</span></div>}
 
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-syne" style={{ fontSize:15, fontWeight:700, flex:1, marginRight:8 }}>{h.name}</h3>
-                <span className="font-mono" style={{ fontSize:13, color:"#9E9E9E" }}>{h.distance_km} km</span>
+                <h3 className="font-syne" style={{ fontSize:15, fontWeight:700, flex:1, marginRight:8, color:"var(--text)" }}>{h.name}</h3>
+                <span className="font-mono" style={{ fontSize:13, color:"var(--text2)" }}>{h.distance_km} km</span>
               </div>
 
               {/* Specs */}
               <div className="flex gap-2 mb-3" style={{ flexWrap:"wrap" }}>
                 {h.specializations.slice(0,3).map(s => (
-                  <span key={s} style={{ fontSize:10, padding:"2px 8px", background:"rgba(255,255,255,0.06)", borderRadius:20, color:"#9E9E9E" }}>{s}</span>
+                  <span key={s} style={{ fontSize:10, padding:"2px 8px", background:"var(--card2)", borderRadius:20, color:"var(--text2)" }}>{s}</span>
                 ))}
               </div>
 
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-                  <span className="font-dm" style={{ fontSize:13, color:"#fff" }}>{h.beds_available} beds free</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+                  <span className="font-dm" style={{ fontSize:13, color:"var(--text)" }}>{h.beds_available} beds free</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                  <span className="font-mono" style={{ fontSize:13, color:"#00C853" }}>ETA: {etaMin(h.eta_seconds)}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  <span className="font-mono" style={{ fontSize:13, color:"var(--green)" }}>ETA: {etaMin(h.eta_seconds)}</span>
                 </div>
               </div>
 

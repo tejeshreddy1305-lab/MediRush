@@ -78,16 +78,16 @@ export default function EmergencyInputScreen({ go, setTriageData }) {
     <div className="screen" style={{ paddingTop: 52, gap: 16 }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <button onClick={() => go("home")} style={{ background: "none", border: "none", cursor: "pointer", color: "#E53935", display: "flex", alignItems: "center", gap: 6 }}>
+        <button onClick={() => go("home")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--red)", display: "flex", alignItems: "center", gap: 6 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
         <div className="flex items-center gap-2">
-          <div style={{ width: 20, height: 20, background: "#E53935", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/></svg>
+          <div style={{ width: 24, height: 24, background: "var(--bg)", border: "1.5px solid var(--red)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="var(--red)" strokeWidth="2.5" strokeLinecap="round"/></svg>
           </div>
-          <span className="font-syne" style={{ fontSize: 16, fontWeight: 700 }}>MediRush</span>
+          <span className="font-syne" style={{ fontSize: 16, fontWeight: 700, color: "var(--text)" }}>MediRush</span>
         </div>
-        <span className="progress-pill">Step 1 of 3</span>
+        <span className="progress-pill" style={{ background: "var(--bg)", border: "1px solid var(--red)", color: "var(--red2)", height: 28, fontSize: 11, display: "flex", alignItems: "center", padding: "0 10px" }}>Step 1 of 3</span>
       </div>
 
       {/* Tabs */}
@@ -109,7 +109,7 @@ export default function EmergencyInputScreen({ go, setTriageData }) {
           </div>
           <button
             onClick={listening ? stopVoice : startVoice}
-            style={{ width: 80, height: 80, borderRadius: "50%", background: listening ? "#2C2C2C" : "#E53935", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", boxShadow: listening ? "none" : "0 0 20px rgba(229,57,53,0.4)" }}
+            style={{ width: 80, height: 80, borderRadius: "50%", background: listening ? "var(--text)" : "var(--red)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", boxShadow: listening ? "none" : "0 0 20px var(--red-glow)" }}
           >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
               {listening
@@ -118,11 +118,11 @@ export default function EmergencyInputScreen({ go, setTriageData }) {
               }
             </svg>
           </button>
-          <p className="font-dm" style={{ color: "#9E9E9E", fontSize: 13 }}>{listening ? "Listening... tap to stop" : "Tap & Speak"}</p>
+          <p className="font-dm" style={{ color: "var(--text3)", fontSize: 13 }}>{listening ? "Listening... tap to stop" : "Tap & Speak"}</p>
           {transcript && (
-            <div className="card w-full" style={{ marginTop: 8 }}>
-              <p className="font-dm" style={{ fontSize: 13, color: "#9E9E9E", marginBottom: 4 }}>Transcript</p>
-              <p className="font-dm" style={{ fontSize: 14, color: "#fff", lineHeight: 1.5 }}>{transcript}</p>
+            <div className="card w-full" style={{ marginTop: 8, background: "var(--card)" }}>
+              <p className="font-dm" style={{ fontSize: 13, color: "var(--text2)", marginBottom: 4 }}>Transcript</p>
+              <p className="font-dm" style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.5 }}>{transcript}</p>
             </div>
           )}
         </div>
@@ -170,11 +170,11 @@ export default function EmergencyInputScreen({ go, setTriageData }) {
             </div>
             <input type="range" min="70" max="100" value={spo2} onChange={e => setSpo2(+e.target.value)} />
             <div className="flex justify-between mt-2">
-              <span style={{ fontSize: 10, color: "#616161" }}>70%</span>
-              <span style={{ fontSize: 10, color: "#616161" }}>100%</span>
+              <span style={{ fontSize: 10, color: "var(--text3)" }}>70%</span>
+              <span style={{ fontSize: 10, color: "var(--text3)" }}>100%</span>
             </div>
           </div>
-          <p className="font-dm" style={{ fontSize: 12, color: "#616161", textAlign: "center" }}>Enter your current readings if available</p>
+          <p className="font-dm" style={{ fontSize: 12, color: "var(--text3)", textAlign: "center" }}>Enter your current readings if available</p>
         </div>
       )}
 

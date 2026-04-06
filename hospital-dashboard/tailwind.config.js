@@ -8,9 +8,9 @@ export default {
     extend: {
       colors: {
         navy: {
-          900: '#050D1A', // Global background
-          800: '#0A1628', // Panel background
-          700: '#0F1F3D', // Cards background
+          900: '#FFFFFF', // Global background
+          800: '#F8FAFC', // Panel background
+          700: '#F1F5F9', // Cards background
         },
         emergency: '#E53935',
         moderate: '#FFB300',
